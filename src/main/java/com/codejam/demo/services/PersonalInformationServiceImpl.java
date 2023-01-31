@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.codejam.demo.utils.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Streamable;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +38,8 @@ public class PersonalInformationServiceImpl {
 	}
 
 	@Transactional
-	public PersonalInformationDTO create(PersonalInformationDTO dto) {
-
+	public PersonalInformationDTO create(PersonalInformationDTO dto) throws CustomException {
+		validatePersonalInformation(dto);
 		PersonalInformation idol = new PersonalInformation();
 		idol.setRealName(dto.getRealName());
 		idol.setIdolName(dto.getIdolName());
@@ -46,7 +47,6 @@ public class PersonalInformationServiceImpl {
 		idol.setIdolStatus(dto.getIdolStatus());
 
 		idol = personalInformationRepository.save(idol);
-
 		return idol.toDto();
 	}
 	@Transactional
@@ -87,5 +87,20 @@ public class PersonalInformationServiceImpl {
 		PersonalInformation idol = personalInformationRepository.findById(id);
 		personalInformationRepository.deleteById(id);
 		return idol.toDto();
+	}
+
+	private void validatePersonalInformation(PersonalInformationDTO dto) throws CustomException {
+		if(dto.getRealName().length()>50){
+			throw new CustomException("realName must be <=50");
+		}
+		if(dto.getIdolName().length()>60){
+			throw new CustomException("idolName must be <=60");
+		}
+		if(dto.getAddress().length()>255){
+			throw new CustomException("address must be <=255");
+		}
+		if(dto.getIdolStatus().length()>25){
+			throw new CustomException("idolStatus must be <=50");
+		}
 	}
 }
